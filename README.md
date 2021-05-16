@@ -19,6 +19,17 @@ This plugin is primarily intended to be used by developers of other plugins.
 - `scaledrone <size>` -- Resizes the drone you are looking at.
   - This works like `scale <size>` from [Entity Scale Manager](https://umod.org/plugins/entity-scale-manager) except that it handles special needs of drones.
 
+## Localization
+
+```csharp
+{
+  "Error.NoPermission": "You don't have permission to do that.",
+  "Error.Syntax": "Syntax: {0} <size>",
+  "Error.NoDroneFound": "Error: No drone found.",
+  "Scale.Success": "Drone was scaled to: {0}"
+}
+```
+
 ## FAQ
 
 #### How do I get a drone?
