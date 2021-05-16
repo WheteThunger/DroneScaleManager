@@ -125,28 +125,34 @@ namespace Oxide.Plugins
             if (!_pluginData.ScaledDrones.Contains(drone.net.ID))
                 return false;
 
-            SphereEntity parentSphere;
-            var rootEntity = GetRootEntity(drone, out parentSphere);
+            var rootEntity = GetRootEntityRelaxed(drone);
             if (rootEntity == null)
-            {
-                if (parentSphere == null)
-                    return false;
+                return false;
 
-                // Assume the parent sphere is the root entity, in case this was called during the OnDroneScaleBegin hook.
-                rootEntity = parentSphere;
-            }
-
-            var childTransform = childEntity.transform;
-            var droneTransform = drone.transform;
-
-            var scaledWorldPosition = droneTransform.TransformPoint(childTransform.localPosition);
-            childTransform.localPosition = rootEntity.transform.InverseTransformPoint(scaledWorldPosition);
-            childTransform.localRotation = droneTransform.localRotation * childTransform.localRotation;
-
+            PositionChildTransform(rootEntity.transform, drone.transform, childEntity.transform);
             childEntity.SetParent(rootEntity, worldPositionStays: false, sendImmediate: true);
 
             if (!childEntity.isSpawned)
                 childEntity.Spawn();
+
+            return true;
+        }
+
+        private bool API_ParentTransform(Drone drone, Transform childTransform)
+        {
+            if (!IsDroneEligible(drone))
+                return false;
+
+            if (!_pluginData.ScaledDrones.Contains(drone.net.ID))
+                return false;
+
+            var rootEntity = GetRootEntityRelaxed(drone);
+            if (rootEntity == null)
+                return false;
+
+            var rootTransform = rootEntity.transform;
+            PositionChildTransform(rootTransform, drone.transform, childTransform);
+            childTransform.parent = rootTransform;
 
             return true;
         }
@@ -383,6 +389,13 @@ namespace Oxide.Plugins
             }
         }
 
+        private static void PositionChildTransform(Transform rootTransform, Transform droneTransform, Transform childTransform)
+        {
+            var scaledWorldPosition = droneTransform.TransformPoint(childTransform.localPosition);
+            childTransform.localPosition = rootTransform.InverseTransformPoint(scaledWorldPosition);
+            childTransform.localRotation = droneTransform.localRotation * childTransform.localRotation;
+        }
+
         private static SphereEntity GetParentSphere(BaseEntity entity) =>
             entity.GetParentEntity() as SphereEntity;
 
@@ -399,6 +412,20 @@ namespace Oxide.Plugins
         {
             SphereEntity parentSphere;
             return GetRootEntity(drone, out parentSphere);
+        }
+
+        private static SphereEntity GetRootEntityRelaxed(Drone drone)
+        {
+            SphereEntity parentSphere;
+            var rootEntity = GetRootEntity(drone, out parentSphere);
+            if (rootEntity != null)
+                return rootEntity;
+
+            // Assume the parent sphere is the root entity, in case this was called during the OnDroneScaleBegin hook.
+            if (parentSphere != null)
+                return parentSphere;
+
+            return null;
         }
 
         private static SphereEntity AddRootEntity(Drone drone)
