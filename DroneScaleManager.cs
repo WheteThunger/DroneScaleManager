@@ -556,7 +556,7 @@ namespace Oxide.Plugins
                     if (component == null)
                         continue;
 
-                    Destroy(component);
+                    DestroyImmediate(component);
                 }
             }
 
