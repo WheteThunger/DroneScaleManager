@@ -42,14 +42,10 @@ namespace Oxide.Plugins
             _pluginData = StoredData.Load();
 
             permission.RegisterPermission(PermissionScaleUnrestricted, this);
-
-            Unsubscribe(nameof(OnPluginLoaded));
         }
 
         private void OnServerInitialized()
         {
-            Subscribe(nameof(OnPluginLoaded));
-
             if (!VerifyDependencies())
                 return;
 
