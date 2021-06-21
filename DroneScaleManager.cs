@@ -115,13 +115,10 @@ namespace Oxide.Plugins
 
         private bool API_ParentEntity(Drone drone, BaseEntity childEntity)
         {
-            if (!IsDroneEligible(drone))
+            if (!IsDroneEligible(drone) || !IsScaledDrone(drone))
                 return false;
 
-            if (!_pluginData.ScaledDrones.Contains(drone.net.ID))
-                return false;
-
-            var rootEntity = GetRootEntityRelaxed(drone);
+            var rootEntity = GetRootEntityOrParentSphere(drone);
             if (rootEntity == null)
                 return false;
 
@@ -136,13 +133,10 @@ namespace Oxide.Plugins
 
         private bool API_ParentTransform(Drone drone, Transform childTransform)
         {
-            if (!IsDroneEligible(drone))
+            if (!IsDroneEligible(drone) || !IsScaledDrone(drone))
                 return false;
 
-            if (!_pluginData.ScaledDrones.Contains(drone.net.ID))
-                return false;
-
-            var rootEntity = GetRootEntityRelaxed(drone);
+            var rootEntity = GetRootEntityOrParentSphere(drone);
             if (rootEntity == null)
                 return false;
 
@@ -160,7 +154,7 @@ namespace Oxide.Plugins
                 return null;
 
             var drone = GetGrandChildOfType<Drone>(possibleRootEntity);
-            if (drone == null || !_pluginData.ScaledDrones.Contains(drone.net.ID))
+            if (drone == null || !IsScaledDrone(drone))
                 return null;
 
             return drone;
@@ -204,6 +198,8 @@ namespace Oxide.Plugins
 
             if (TryScaleDrone(drone, scale))
                 ReplyToPlayer(player, Lang.ScaleSuccess, scale);
+            else
+                ReplyToPlayer(player, Lang.ScaleError);
         }
 
         #endregion
@@ -410,7 +406,7 @@ namespace Oxide.Plugins
             return GetRootEntity(drone, out parentSphere);
         }
 
-        private static SphereEntity GetRootEntityRelaxed(Drone drone)
+        private static SphereEntity GetRootEntityOrParentSphere(Drone drone)
         {
             SphereEntity parentSphere;
             var rootEntity = GetRootEntity(drone, out parentSphere);
@@ -459,9 +455,6 @@ namespace Oxide.Plugins
 
         private static bool ScaleDrone(Drone drone, SphereEntity rootEntity, float scale, float currentScale)
         {
-            if (!VerifyDependencies())
-                return false;
-
             SetupScaledDrone(drone, scale);
 
             // Notify other plugins before removing the root entity.
@@ -501,6 +494,9 @@ namespace Oxide.Plugins
 
         private static bool TryScaleDrone(Drone drone, float desiredScale)
         {
+            if (!VerifyDependencies())
+                return false;
+
             if (DroneScaleWasBlocked(drone, desiredScale))
                 return false;
 
@@ -540,6 +536,9 @@ namespace Oxide.Plugins
 
         private class DroneCollisionProxy : MonoBehaviour
         {
+            private const string OnCollisionEnterMethodName = "OnCollisionEnter";
+            private const string OnCollisionStayMethodName = "OnCollisionStay";
+
             public static void DestroyAll()
             {
                 foreach (var entity in BaseNetworkable.serverEntities)
@@ -561,13 +560,13 @@ namespace Oxide.Plugins
             private void OnCollisionEnter(Collision collision)
             {
                 if (OwnerDrone != null)
-                    OwnerDrone.BroadcastMessage("OnCollisionEnter", collision, SendMessageOptions.DontRequireReceiver);
+                    OwnerDrone.BroadcastMessage(OnCollisionEnterMethodName, collision, SendMessageOptions.DontRequireReceiver);
             }
 
             private void OnCollisionStay()
             {
                 if (OwnerDrone != null)
-                    OwnerDrone.BroadcastMessage("OnCollisionStay", SendMessageOptions.DontRequireReceiver);
+                    OwnerDrone.BroadcastMessage(OnCollisionStayMethodName, SendMessageOptions.DontRequireReceiver);
             }
         }
 
@@ -599,9 +598,6 @@ namespace Oxide.Plugins
         private void ReplyToPlayer(IPlayer player, string messageName, params object[] args) =>
             player.Reply(string.Format(GetMessage(player, messageName), args));
 
-        private void ChatMessage(BasePlayer player, string messageName, params object[] args) =>
-            player.ChatMessage(string.Format(GetMessage(player.IPlayer, messageName), args));
-
         private string GetMessage(IPlayer player, string messageName, params object[] args) =>
             GetMessage(player.Id, messageName, args);
 
@@ -617,6 +613,7 @@ namespace Oxide.Plugins
             public const string ErrorSyntax = "Error.Syntax";
             public const string ErrorNoDroneFound = "Error.NoDroneFound";
             public const string ScaleSuccess = "Scale.Success";
+            public const string ScaleError = "Error.ScalePrevented";
         }
 
         protected override void LoadDefaultMessages()
@@ -627,6 +624,7 @@ namespace Oxide.Plugins
                 [Lang.ErrorSyntax] = "Syntax: {0} <size>",
                 [Lang.ErrorNoDroneFound] = "Error: No drone found.",
                 [Lang.ScaleSuccess] = "Drone was scaled to: {0}",
+                [Lang.ScaleError] = "An error occurred while attempting to resize that drone.",
             }, this, "en");
         }
 

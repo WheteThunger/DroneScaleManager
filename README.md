@@ -4,7 +4,7 @@ This plugin is primarily intended to be used by developers of other plugins.
 
 - Allows other plugins to resize drones
 - Allows privileged players to resize drones with a command
-- Allows attaching entities to resized drones without resizing them
+- Allows attaching entities to resized drones without resizing those attachments
 
 ### Required plugins
 
@@ -26,7 +26,8 @@ This plugin is primarily intended to be used by developers of other plugins.
   "Error.NoPermission": "You don't have permission to do that.",
   "Error.Syntax": "Syntax: {0} <size>",
   "Error.NoDroneFound": "Error: No drone found.",
-  "Scale.Success": "Drone was scaled to: {0}"
+  "Scale.Success": "Drone was scaled to: {0}",
+  "Error.ScalePrevented": "An error occurred while attempting to resize that drone."
 }
 ```
 
@@ -34,7 +35,7 @@ This plugin is primarily intended to be used by developers of other plugins.
 
 #### How do I get a drone?
 
-As of this writing (March 2021), RC drones are a deployable item named `drone`, but they do not appear naturally in any loot table, nor are they craftable. However, since they are simply an item, you can use plugins to add them to loot tables, kits, GUI shops, etc. Admins can also get them with the command `inventory.give drone 1`, or spawn one in directly with `spawn drone.deployed`.
+As of this writing, RC drones are a deployable item named `drone`, but they do not appear naturally in any loot table, nor are they craftable. However, since they are simply an item, you can use plugins to add them to loot tables, kits, GUI shops, etc. Admins can also get them with the command `inventory.give drone 1`, or spawn one in directly with `spawn drone.deployed`.
 
 #### How do I remote-control a drone?
 
@@ -63,7 +64,7 @@ bool API_ScaleDrone(Drone drone, float scale)
 ```
 
 - Resizes a drone.
-- The max recommended size it `7.0`.
+- The max recommended size is `7.0`.
 
 #### API_ParentEntity
 
@@ -71,11 +72,11 @@ bool API_ScaleDrone(Drone drone, float scale)
 bool API_ParentEntity(Drone drone, BaseEntity entity)
 ```
 
-- Parents the specified entity to the root entity of the resized drone, without resizing the entity.
-- The `localPosition` of the entity's transform will automatically be scaled according to the drone size.
-- Spawns the entity if not already spawned.
-- Returns `true` if the entity was parented successfully.
-- Returns `false` if the drone is a delivery drone is or not resized.
+- Parents the specified entity to the root entity of the resized drone, without resizing the entity
+- The `localPosition` of the entity's transform will automatically be scaled according to the drone size
+- Spawns the entity if not already spawned
+- Returns `true` if the entity was parented successfully
+- Returns `false` if the drone is a delivery drone is or not resized
 
 #### API_ParentTransform
 
@@ -83,10 +84,10 @@ bool API_ParentEntity(Drone drone, BaseEntity entity)
 bool API_ParentTransform(Drone drone, Transform childTransform)
 ```
 
-- Parents the specified trasnsform to the root entity.
-- The `localPosition` of the transform will automatically be scaled according to the drone size.
-- Returns `true` if the transform was parented successfully.
-- Returns `false` if the drone is a delivery drone is or not resized.
+- Parents the specified trasnsform to the root entity
+- The `localPosition` of the transform will automatically be scaled according to the drone size
+- Returns `true` if the transform was parented successfully
+- Returns `false` if the drone is a delivery drone is or not resized
 
 #### API_GetParentDrone
 
@@ -94,9 +95,9 @@ bool API_ParentTransform(Drone drone, Transform childTransform)
 Drone API_GetParentDrone(BaseEntity entity)
 ```
 
-- Returns the resized drone, given the root entity or a child of the root entity.
-- Returns `null` if the entity is not a root entity or is not parented to a resized drone's root entity.
-- If you expect to call this often, you can optimize performance by only calling after verifying that the entity has a parent.
+- Returns the resized drone, given the root entity or a child of the root entity
+- Returns `null` if the entity is not a root entity or is not parented to a resized drone's root entity
+- If you expect to call this often, you can optimize performance by only calling after verifying that the entity has a parent
 
 #### API_GetRootEntity
 
@@ -104,8 +105,8 @@ Drone API_GetParentDrone(BaseEntity entity)
 BaseEntity API_GetRootEntity(Drone drone)
 ```
 
-- Returns the root entity of a resized drone.
-- Returns `null` if the drone is not resized.
+- Returns the root entity of a resized drone
+- Returns `null` if the drone is not resized
 
 ## Developer Hooks
 
