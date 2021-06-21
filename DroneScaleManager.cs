@@ -10,7 +10,7 @@ using VLB;
 
 namespace Oxide.Plugins
 {
-    [Info("Drone Scale Manager", "WhiteThunder", "0.1.0")]
+    [Info("Drone Scale Manager", "WhiteThunder", "1.0.0")]
     [Description("Utilities for resizing RC drones.")]
     internal class DroneScaleManager : CovalencePlugin
     {
