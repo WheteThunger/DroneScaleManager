@@ -88,7 +88,7 @@ bool API_ParentTransform(Drone drone, Transform childTransform)
 - Parents the specified trasnsform to the root entity
 - The `localPosition` of the transform will automatically be scaled according to the drone size
 - Returns `true` if the transform was parented successfully
-- Returns `false` if the drone is a delivery drone is or not resized
+- Returns `false` if the drone is a delivery drone or is not resized
 
 #### API_GetParentDrone
 
