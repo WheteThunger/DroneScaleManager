@@ -77,7 +77,7 @@ bool API_ParentEntity(Drone drone, BaseEntity entity)
 - The `localPosition` of the entity's transform will automatically be scaled according to the drone size
 - Spawns the entity if not already spawned
 - Returns `true` if the entity was parented successfully
-- Returns `false` if the drone is a delivery drone is or not resized
+- Returns `false` if the drone is a delivery drone or is not resized
 
 #### API_ParentTransform
 
