@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Oxide.Core;
 using Oxide.Core.Plugins;
 using Oxide.Core.Libraries.Covalence;
@@ -10,7 +9,7 @@ using VLB;
 
 namespace Oxide.Plugins
 {
-    [Info("Drone Scale Manager", "WhiteThunder", "1.0.0")]
+    [Info("Drone Scale Manager", "WhiteThunder", "1.0.1")]
     [Description("Utilities for resizing RC drones.")]
     internal class DroneScaleManager : CovalencePlugin
     {
@@ -80,7 +79,7 @@ namespace Oxide.Plugins
 
         private void OnEntityKill(Drone drone)
         {
-            if (!_pluginData.ScaledDrones.Remove(drone.net.ID))
+            if (!_pluginData.ScaledDrones.Remove(drone.net.ID.Value))
                 return;
 
             var rootEntity = GetRootEntity(drone);
@@ -224,7 +223,7 @@ namespace Oxide.Plugins
         }
 
         private static bool IsScaledDrone(Drone drone) =>
-            _pluginData.ScaledDrones.Contains(drone.net.ID);
+            _pluginData.ScaledDrones.Contains(drone.net.ID.Value);
 
         private static float GetDroneScale(Drone drone)
         {
@@ -450,7 +449,7 @@ namespace Oxide.Plugins
             RestoreRigidBody(scaledDrone, rootEntity);
             rootEntity.Kill();
 
-            _pluginData.ScaledDrones.Remove(scaledDrone.net.ID);
+            _pluginData.ScaledDrones.Remove(scaledDrone.net.ID.Value);
         }
 
         private static bool ScaleDrone(Drone drone, SphereEntity rootEntity, float scale, float currentScale)
@@ -520,7 +519,7 @@ namespace Oxide.Plugins
             }
             else
             {
-                _pluginData.ScaledDrones.Add(drone.net.ID);
+                _pluginData.ScaledDrones.Add(drone.net.ID.Value);
                 rootEntity = AddRootEntity(drone);
                 success = ScaleDrone(drone, rootEntity, desiredScale, currentScale);
                 _pluginInstance.DroneEffects?.Call("API_StopAnimating", drone);
@@ -577,7 +576,7 @@ namespace Oxide.Plugins
         private class StoredData
         {
             [JsonProperty("ScaledDrones")]
-            public HashSet<uint> ScaledDrones = new HashSet<uint>();
+            public HashSet<ulong> ScaledDrones = new HashSet<ulong>();
 
             public static StoredData Load() =>
                 Interface.Oxide.DataFileSystem.ReadObject<StoredData>(_pluginInstance.Name) ?? new StoredData();
