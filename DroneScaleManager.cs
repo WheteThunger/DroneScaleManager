@@ -9,7 +9,7 @@ using VLB;
 
 namespace Oxide.Plugins
 {
-    [Info("Drone Scale Manager", "WhiteThunder", "1.0.1")]
+    [Info("Drone Scale Manager", "WhiteThunder", "1.0.2")]
     [Description("Utilities for resizing RC drones.")]
     internal class DroneScaleManager : CovalencePlugin
     {
@@ -311,7 +311,7 @@ namespace Oxide.Plugins
             else if (entity.net?.group?.ID == 0)
             {
                 // Fix vanilla bug that prevents leaving the global network group.
-                var group = entity.net.sv.visibility.GetGroup(entity.transform.position);
+                var group = entity.net.sv.visibility.GetGroup(entity.transform.position, entity.networkRange);
                 entity.net.SwitchGroup(group);
             }
         }
