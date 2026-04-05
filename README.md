@@ -1,3 +1,7 @@
+## Plugin Discontinued
+
+This plugin was originally created for Mega Drones, but it is no longer needed. For details on how to scale drones, see the Mega Drones plugin source code.
+
 ## Features
 
 This plugin is primarily intended to be used by developers of other plugins.
